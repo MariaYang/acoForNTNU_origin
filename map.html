@@ -1,0 +1,66 @@
+<!doctype html>
+<html >
+<head>
+  	<meta charset="utf-8">
+  	<title>Map</title>
+  	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="map.css">
+    <link rel="stylesheet" href="dist/jquery.jqplot.min.css">
+	  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+	  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry&language=zh-TW"></script>
+    <script src="http://app.essoduke.org/tinyMap/jquery.tinyMap-2.9.9.min.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.0.5/firebase.js"></script>
+    <script src="dist/jquery.jqplot.min.js"></script>
+</head>
+<body >
+<textarea id="plotin" class="col-xs-4" rows="50">
+  
+</textarea>
+<div class="col-xs-6">
+  <button onclick="plot()">plot</button>
+  <div id="chart1" ></div>
+</div>
+  
+
+<script type="text/javascript">
+  plotPoly=
+    [
+      [ 
+        [1000,2000],[1,5],[1,7],[2,2]
+      ],
+      [ 
+        [2,3],[1,5],[1,7],[2,2]
+      ]
+    ]
+  function plot(){
+    var pin=plotin.value
+    pins = pin.split(',')
+    var polys=[]
+    pins.forEach(function(v){
+      var points = v.split("\n")
+      var poly=[]
+      if(v!=null){
+        points.forEach(function(point){
+          point=point.split("\t");
+          point[0]=parseFloat(point[0])
+          point[1]=parseFloat(point[1])
+          poly.push(point.reverse())
+        })
+        polys.push(poly); 
+      }
+     
+    })
+    //console.log(plotin.value)
+    $(document).ready(function(){
+      $('#chart1').empty();
+      console.log(polys)
+      console.log(plotPoly)
+      var plot1 = $.jqplot ('chart1', polys);
+    });
+  }
+</script>
+</body>
+
+</html>

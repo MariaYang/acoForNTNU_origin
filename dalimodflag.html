@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html> 
+<head>
+<meta charset="utf8">
+ 
+</head>
+<body>
+<textarea id="in1" rows="10" cols="200"></textarea><br>
+<input type="button" class="button" value="計算" onclick="calc()"><br>
+<textarea id="out1" rows="10" cols="200"></textarea><br>
+<script>
+function calc() {
+	var line1;
+	var line1searchloop;
+	var line1replaceloop;
+	var line1showloop;
+	var replaceflag;
+	var in1=document.getElementById("in1").value;
+	var out1=document.getElementById("out1");
+	out1.value="";
+	line1=in1.split("\n");
+	line1searchloop=0;
+	
+	while(line1searchloop<=(line1.length-1))
+		{
+		if((line1[line1searchloop].search(/flag/i))==0)
+			{
+			console.log(getflag(line1[line1searchloop]));
+			replaceflag=getflag(line1[line1searchloop]);
+			line1replaceloop=0;
+			while(line1replaceloop<=(line1.length-1))
+			{
+			if(line1[line1replaceloop].length==(line1[line1replaceloop].indexOf(replaceflag)+replaceflag.length))
+				{
+				line1[line1replaceloop]=line1[line1replaceloop].replace(replaceflag,line1searchloop);
+				}
+				line1replaceloop=line1replaceloop-(-1);
+				
+			}
+			line1[line1searchloop]="";
+			}
+		
+		line1searchloop=line1searchloop-(-1);
+		}
+	line1showloop=0;
+	while(line1showloop<=(line1.length-1))
+		{
+		out1.value+=(line1[line1showloop]+"\n");
+		line1showloop=line1showloop-(-1);
+		}
+	}
+function getflag(gfin) {
+	var gfout;
+	gfout=gfin.substring(5,gfin.length);
+	gfout=gfout.replace(" ","");
+	return(gfout);
+}
+</script>
+</body>
+</html>

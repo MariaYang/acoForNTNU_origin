@@ -1,0 +1,31 @@
+<html ng-app="sampleApp">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/0.9.0/angularfire.min.js"></script>
+    <script src="nfm/lodash.min.js"></script>
+    <script src="nfm/angular-google-maps.min.js"></script>
+    <script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
+    <script src="nfm.js"></script>
+  </head>
+  <body ng-controller="mainCtrl">
+    <style type="text/css">
+      .angular-google-map-container { height: 500px; }
+    </style>
+    <div id="map_canvas"  class="col-xs-12 col-md-7">
+      <button ng-click="unlock()" id="unlockButton" class="hidden" >{{isLock?'unlock':'lock'}}</button>
+      <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" options="map.options" events="map.events">
+        <ui-gmap-marker ng-repeat="marker in markers"coords="marker" options="options" events="markerEvent" icon="icon"idkey="marker.$id">
+        </ui-gmap-marker>
+        <ui-gmap-polyline ng-repeat="poly in polys" path="poly.path" stroke="poly.stroke" >
+        </ui-gmap-polyline>
+      </ui-gmap-google-map>
+      <button ng-click="getMarkers()" >顯示標記點</button>
+      <ul>{{focus}}</ul>
+      <ul>{{showPoly}}</ul>
+    </div>
+  </body>
+</html>

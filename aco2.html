@@ -1,0 +1,276 @@
+<!doctype html>
+<html >
+<head>
+  	<meta charset="utf-8">
+  	<title>Map</title>
+  	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+	  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+	  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry&language=zh-TW"></script>
+    <script src="http://app.essoduke.org/tinyMap/jquery.tinyMap-2.9.9.min.js"></script>
+    <script src="jcanvas.min.js"></script>
+</head>
+<body >
+<div class="col-xs-7">
+  <canvas width='600' height='650' id="myCanvas">
+    
+  </canvas> 
+</div>
+<div class="col-xs-4">
+  <br/>
+  螞蟻數<input type="number" class="form-control" id="inputNumber" value="15"/>
+  <br/>
+  路徑   /  行走距離
+  <textarea class="form-control" rows="20"id="output"></textarea>
+  <br/>
+  已迭帶次數<input type="number" value="0" id="clicktimes" />
+  <button type="button" class="btn btn-default"onclick="main()">進行迭代</button>
+  <button type="button" class="btn btn-default"onclick="restart()">清除</button>
+</div>
+<script type="text/javascript">
+function jo(g){
+  console.log(g);
+}
+
+var points=
+[
+  {"x":100,"y":100,"height":  0,"text":"T","nodeTo":     ""},
+  {"x":200,"y":300,"height":100,"text":"D","nodeTo":"BCEFT"},
+  {"x":350,"y":300,"height":  0,"text":"B","nodeTo":"ACDF"},
+  {"x":200,"y":450,"height":  0,"text":"C","nodeTo":"ABDE"},
+  {"x":350,"y":450,"height":  0,"text":"A","nodeTo":"BCDS"},
+  {"x": 50,"y":450,"height":  0,"text":"E","nodeTo":"CDGT"},
+  {"x": 50,"y":550,"height":  0,"text":"G","nodeTo":   "E"},
+  {"x":500,"y":200,"height":  0,"text":"F","nodeTo": "BDT"},
+  {"x":550,"y":450,"height":  0,"text":"S","nodeTo":  "AB"}
+] 
+$.each( points, function( key, point ) {
+  $("#myCanvas").drawArc({
+    fillStyle: "green",
+    x: point.x,
+    y: point.y,
+    radius: 10,
+  });
+
+  $('#myCanvas').drawText({
+    strokeStyle: '#05f',
+    strokeWidth: 2,
+    x: point.x,
+    y: point.y+20,
+    fontSize: 15,
+    text: point.text+' ( '+point.height+' ) '
+  });
+});
+$.each( points, function( k1, p1 ) {
+  var nodes=p1.nodeTo.split('');
+  var endPoint ;
+  $.each(nodes,function(k2,p2){
+    for(var p in points){
+      if(points[p].text==p2){
+        endPoint =  points[p];  
+      }
+    }
+    var startX = p1.x;
+    var endX=endPoint.x;
+    if(startX==endX);
+    else if(startX<endX){
+      startX+=20;
+      endX-=20;
+    }else {
+      startX-=20;
+      endX+=20;
+    }
+    var startY=p1.y;
+    var endY =endPoint.y;
+    if(startY==endY);
+    else if(startY<endY){
+      startY+=30;
+      endY-=30;
+    }else {
+      startY-=30;
+      endY+=30;
+    }
+    $('canvas').drawLine({
+      strokeStyle: '#000',
+      strokeWidth: 2,
+      rounded: true,
+      startArrow: true,
+      arrowRadius: 15,
+      arrowAngle: 90,
+      x1: endX, 
+      y1: endY,
+      x2: startX,  
+      y2: startY, 
+    });
+  });
+});
+
+var pheromones=[];
+var initial_pheromone_value=0.002;
+initPh();
+console.log(pheromones);
+
+function main(){
+  antsMove($("#inputNumber").val());
+  $('#clicktimes').val(parseInt($('#clicktimes').val())+1);
+}
+function restart(){
+  $('#clicktimes').val(0);
+  $('#output').text("");
+  initPh();
+}
+function removeA(arr) {
+  var what, a = arguments, L = a.length, ax;
+  while (L > 1 && arr.length) {
+  what = a[--L];
+    while ((ax= arr.indexOf(what)) !== -1) {
+      arr.splice(ax, 1);
+    }
+  }
+  return arr;  // pop a value from a array
+}
+function getIndOfPoint(v){
+  var op="";
+  $.each( points, function( key, point ) {
+    if(v==point.text)op=key;
+  });
+  return op;  
+}
+function initPh(){
+  $.each( points, function( key, point ) {
+      pheromones[key]=[];
+      var nodes=point.nodeTo.split('');
+      $.each(nodes,function(k,v){
+        pheromones[key][k]={
+          src:point.text,
+          dest:v,
+          pheromone_val: initial_pheromone_value
+        };
+      });
+  });
+  jo(pheromones);
+}
+function randomTar(ant){
+  var index=getIndOfPoint(ant.nowAt);
+  var dests=[];
+  var dest_probs=[];
+  var p_sum=0;
+  $.each(pheromones[index],function(ind,val){
+    dests.push(val.dest);
+  });   
+  $.each(ant.trail,function(ind,text){
+    removeA(dests,text);
+  });
+  if (!dests.length)return 0; 
+  $.each(dests,function(ind,val){
+    $.each(pheromones[index],function(i,v){
+      if(v.dest==val){
+        var t={};
+        $.extend(t,v);
+        var alpha=1;
+        t.pheromone_val=Math.pow(t.pheromone_val,alpha)+p_sum;
+        dest_probs.push(t);//val=v;
+        p_sum+=Math.pow(v.pheromone_val,alpha);
+      }
+    });
+  });
+  var rand=Math.random()*p_sum;
+  for(var d in dest_probs){
+    if(dest_probs[d].pheromone_val>rand)return dest_probs[d].dest;
+  }
+  //jo(dest_probs);  //return a new destenation
+}
+function antMove(ant){
+  
+  var newDest=randomTar(ant);
+  if(newDest==0)return 0;
+  else if(newDest=="T"){
+    ant.trail.push("T");
+    ant.nowAt="T";
+    return ant;
+  }
+  else {
+    ant.trail.push(newDest);
+    ant.enegry+=calEnegry(ant.nowAt,newDest);
+    ant.nowAt=newDest;
+    return antMove(ant); 
+  };
+}
+function calEnegry(src,dest){
+  src=getIndOfPoint(src);
+  dest=getIndOfPoint(dest);
+  var dx=points[src].x-points[dest].x;
+  var dy=points[src].y-points[dest].y;
+  return Math.sqrt(dx*dx+dy*dy);
+}
+function disPh(){
+  var dis_para=0.3;
+    $.each( pheromones, function( key1, p1 ) {
+      $.each(p1,function(key2,p2){
+        p2.pheromone_val*=dis_para;
+      });
+  });
+}
+function leavePh(ant){
+  var p=$.extend([],ant.trail);
+  var p_ini=p.shift();
+  var p_to;
+  while (p_to=p.shift()){
+    addPh(p_ini,p_to,10/ant.enegry);
+    p_ini=p_to;
+  }
+}
+function addPh(src,dest,val){
+  src=getIndOfPoint(src);
+  $.each(pheromones[src],function(i,v){
+    if(v.dest==dest){
+      v.pheromone_val=v.pheromone_val+val;
+    }
+  });
+}
+function antsMove(number){
+  var Ants=[];
+  var out="";
+  for (var a=0;a<number;a++) {
+    var ant ={
+    trail:["S"],
+    enegry:0,
+    nowAt:'S'
+    }
+    var v=antMove(ant);
+    Ants.push(v);
+  }
+  var sum=0;
+  var counter=0;
+  disPh();
+  $.each(Ants,function(ind,ant){
+    if (ant.nowAt=="T"){
+      //jo(ant.trail.join()+":"+ant.enegry);
+      sum+=ant.enegry;
+      counter++;
+      leavePh(ant);
+    }
+    if(ant.nowAt=="T"){
+      var tex=ant.trail.join("->");
+      while(tex.length<35)tex+="  ";
+      out+=(tex+":"+ant.enegry+"\n");
+    }
+    else out+="   fail  \n";
+  });
+  out+=("\n\n     average = "+sum/counter ) ;
+  $("#output").text(out);
+  jo(Ants);
+  Ants.sort(function(a, b){
+    if(a.nowAt!="T") return 1;
+    else if(b.nowAt!="T")return -1;
+    else return a.enegry-b.enegry;
+  });
+  //disPh();
+  //for(var k=0;k<number*0.3;k++)leavePh(Ants[k]);
+  
+  jo(sum/counter);
+}
+</script>
+</body>
+</html>

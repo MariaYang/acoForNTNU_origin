@@ -1,0 +1,16 @@
+<div id="map_canvas"  class="col-xs-12 col-md-7">
+  <button ng-click="unlock()" id="unlockButton" class="hidden" >{{isLock?'unlock':'lock'}}</button>
+  <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" control="map.control" refresh='map.refresh'options="map.options" events="map.events">
+    <ui-gmap-marker ng-repeat="marker in markers track by $index"coords="marker" options="options" events="markerEvent" icon="icon"idkey="marker.$id">
+    </ui-gmap-marker>
+    <!-- <ui-gmap-markers models='markers' coords="'self'" icon="icon"options="options" idKey="'$id'" events="markerEvent">
+    </ui-gmap-markers> -->
+    <ui-gmap-polyline ng-repeat="poly in polys" path="poly.path" stroke="poly.stroke" >
+    </ui-gmap-polyline>
+  </ui-gmap-google-map>
+  <button ng-click="getMarkers()" >顯示標記點</button>
+  <ul>{{focus}}</ul>
+  <ul>{{map.refresh}}</ul>
+  <ul>{{out1}}</ul>
+  <ul>{{icon}}</ul>
+</div>

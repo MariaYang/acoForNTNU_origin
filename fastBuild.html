@@ -1,0 +1,12 @@
+<div id="map_canvas"  class="col-xs-12" >
+  <button ng-click="unlock()" id="unlockButton" class="hidden" >{{isLock?'unlock':'lock'}}</button>
+  <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" control="map.control" refresh='map.refresh'options="map.options" events="map.events">
+    <ui-gmap-markers models='markers' coords="'self'" control="markersControl" options="'options'" idKey="'$id'" events="markerEvent">
+    </ui-gmap-markers>
+    <ui-gmap-polylines models="polys" path="'path'" stroke="'stroke'" idKey="key" static="true" >
+    </ui-gmap-polylines>
+  </ui-gmap-google-map>
+  <button ng-click="showMarkers()" >顯示標記點</button>節點數量: {{markers.length}}
+  <ul>{{focus}}</ul>
+  <ul>{{map.refresh}}</ul>
+</div>

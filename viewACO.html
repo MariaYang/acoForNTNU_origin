@@ -1,0 +1,62 @@
+<div id="map_canvas"  class="col-xs-12 col-md-6">
+	<button ng-click="unlock()" id="unlockButton" class="hidden" >{{isLock?'unlock':'lock'}}</button>
+	<ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" control="map.control" refresh='map.refresh'options="map.options" events="map.events">
+		
+		<ui-gmap-marker coords="markerStart" options="markerStartOptions" events="markerEvent" idkey="markerStart.$id">
+   		<ui-gmap-window show='true'>Start</ui-gmap-window>
+		</ui-gmap-marker>
+		
+		<ui-gmap-marker coords="markerStop" options="markerStopOptions" events="markerEvent" idKey="markerStop.$id">
+			<ui-gmap-window show='true'>End<div>End</div>
+			</ui-gmap-window>
+		</ui-gmap-marker>
+		
+		<ui-gmap-polylines models="polys" path='"path"' stroke='"stroke"' >
+		</ui-gmap-polylines>
+		<ui-gmap-polyline path="bestPolysDistance.path" stroke="bestPolysDistance.stroke" >
+		</ui-gmap-polyline>
+		<ui-gmap-polyline path="bestPolysEnergy.path" stroke="bestPolysEnergy.stroke" >
+		</ui-gmap-polyline>
+	</ui-gmap-google-map>
+	
+</div>
+<div class="col-xs-12 col-md-6"	>
+	<p class="col-xs-6">
+		Ants number :<input type="range" min ='1' max='1000' ng-model = "antsNumber" ng-init="antsNumber=150" />{{antsNumber}}
+	</p>
+	<p class="col-xs-6">
+		Ants Iterations :<input type="range" min ='1' max '100' ng-model = "iterations" ng-init="iterations=2"/>{{iterations}}
+	</p>
+	<span class="col-xs-12">
+		<ul class="col-xs-6">Start at  
+			<li>latlng  :   {{markerStart.latitude }} , {{markerStart.longitude}} </li>
+			<li>altitude : {{markerStart.altitude}} M </li>
+		</ul>
+		<ul class="col-xs-6">Stop at
+			<li>latlng  :   {{markerStop.latitude}} , {{markerStop.longitude}}</li>
+			<li>altitude : {{markerStop.altitude}} M </li>
+		</ul>
+		<span class="col-xs-12"> Absolutely distance between :    {{distance}}  km</span>
+
+			<li class="col-xs-4"> shortest path(distance) :   
+				<ul>
+					<li> {{shortest.distance[0]}}  km</li>
+					<li> {{shortest.energy[0]}}  kJ</li>
+				</ul>
+			</li>
+			<li class="col-xs-4"> shortest path(energy) :
+				<ul>
+					<li> {{shortest.distance[1]}}  km</li>
+					<li> {{shortest.energy[1]}}  kJ</li>
+				</ul>    
+			</li>				
+
+		<div class="col-xs-2">
+			<button ng-click="running=1;aco()" ng-show="running==0"ng-init="running=0">run</button>
+			<span ng-show="running>0">running...({{iterationCounter}}/{{iterations}})</span>
+		</div>
+		<div class="col-xs-12" google-chart chart="chartObjectDistance" style="border:1px inset black;padding:0;"></div>
+		<div class="col-xs-12" google-chart chart="chartObjectEnergy" style="border:1px inset black;padding:0;"></div>
+		<ul ng-repeat="r in results track by $index">{{r}}</ul>	
+	</span>
+</div>
